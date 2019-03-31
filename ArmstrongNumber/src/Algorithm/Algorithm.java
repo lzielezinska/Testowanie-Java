@@ -1,6 +1,8 @@
+package Algorithm;
+
 import java.util.Scanner;
 
-public class ArmstrongNumber {
+public class Algorithm {
     public static void checkArmstrongNumber(){
         String numberString = getNumber();
         int numberInteger = Integer.parseInt(numberString);
@@ -15,20 +17,20 @@ public class ArmstrongNumber {
         }
     }
 
-    public static String getNumber(){
+    private static String getNumber(){
         String number;
         Scanner reading = new Scanner(System.in);
         number = reading.nextLine();
         return number;
     }
 
-    public static String[] splitString(String string){
+    private static String[] splitString(String string){
         String[] splitedArray;
         splitedArray = string.split("");
         return splitedArray;
     }
 
-    public static int[] convertToIntegerArray(String string[]){
+    private static int[] convertToIntegerArray(String string[]){
         int[] intArray = new int[string.length];
         for(int i=0; i<string.length;i++){
             intArray[i] = Integer.parseInt(string[i]);
@@ -36,7 +38,7 @@ public class ArmstrongNumber {
         return intArray;
     }
 
-    public static int Algorithm(int intArray[]){
+    private static int Algorithm(int intArray[]){
         int sum = 0;
         for(int i=0; i<intArray.length;i++){
             sum += Math.pow(intArray[i], intArray.length);
