@@ -17,20 +17,20 @@ public class Algorithm {
         }
     }
 
-    private static String getNumber(){
+    public static String getNumber(){
         String number;
         Scanner reading = new Scanner(System.in);
         number = reading.nextLine();
         return number;
     }
 
-    private static String[] splitString(String string){
+    public static String[] splitString(String string){
         String[] splitedArray;
         splitedArray = string.split("");
         return splitedArray;
     }
 
-    private static int[] convertToIntegerArray(String string[]){
+    public static int[] convertToIntegerArray(String string[]){
         int[] intArray = new int[string.length];
         for(int i=0; i<string.length;i++){
             intArray[i] = Integer.parseInt(string[i]);
@@ -38,7 +38,7 @@ public class Algorithm {
         return intArray;
     }
 
-    private static int Algorithm(int intArray[]){
+    public static int Algorithm(int intArray[]){
         int sum = 0;
         for(int i=0; i<intArray.length;i++){
             sum += Math.pow(intArray[i], intArray.length);
