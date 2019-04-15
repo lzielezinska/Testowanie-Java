@@ -1,0 +1,3 @@
+enum SizeOfBoard {
+three,five
+}
