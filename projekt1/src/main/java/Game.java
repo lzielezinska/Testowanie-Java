@@ -1,5 +1,9 @@
 import java.io.*;
+import java.rmi.UnknownHostException;
 import java.util.Scanner;
+
+
+
 
 public class Game {
     public Board board;
@@ -9,53 +13,75 @@ public class Game {
         this.board  = new Board(chooseSizeOfBoard());
         this.status = GameStatus.play;
     }
-
-    Scanner input = new Scanner(System.in);
+    
 
 
     public void play(){
         int size = board.getLevelOfDifficulty();
         Sign sign = Sign.cross ;
         int watcher = 0;
+        int IdCounter = 1;
         boolean condition = false;
+        SavedGameplay savedGameplay = null;
+        try{
+             savedGameplay = new SavedGameplay();
+             savedGameplay.removeAllMoves();
+        }catch(UnknownHostException e) {
+            e.printStackTrace();
+        }
+    
         do{
             printBoard();
-            while(condition!=true)
-                condition=chooseField(size, sign);
+            while(!condition)
+                condition=chooseField(size, sign, IdCounter, savedGameplay);
             watcher++;
             sign = getSign(watcher);
             condition = false;
+            IdCounter++;
 
         }while(!(board.boardIsFull() || board.checkWhoHasWon(sign)));
 
         status = changeStatus(sign);
         System.out.println(status);
+        savedGameplay.getAllMoves();
 
 
     }
 
-    private boolean chooseField(int size, Sign sign) {
-        System.out.println("In which row you want to put "+sign);
-        int row = getInput(input, size);
-        System.out.println("In which column you want to put "+sign);
-        int column = getInput(input, size);
-        if(board.borad[column][row].sign==Sign.empty){
-            board.borad[column][row].sign = sign;
-            String message = sign+" was written in location row = "+row+" column = "+column+"\n";
-            writeTheGameToFile(message);
-            return true;
-        }else {
-            System.out.println("You have chosen a filed, which has been already occupied");
-            return false;
-        }
-
+    private boolean chooseField(int size, Sign sign, int id, SavedGameplay savedGameplay) {
+            Move move;
+            Scanner input = new Scanner(System.in);
+            System.out.println("In which row you want to put "+sign);
+            int row = getInput(input, size);
+            System.out.println("In which column you want to put "+sign);
+            int column = getInput(input, size);
+            if(board.borad[column][row].sign==Sign.empty){
+                board.borad[column][row].sign = sign;
+                move = new Move(row, column, id, sign);
+                savedGameplay.add(move);
+                String message = sign+" was written in location row = "+row+" column = "+column+"\n";
+                writeTheGameToFile(message);
+                return true;
+            }else {
+                System.out.println("You have chosen a filed, which has been already occupied");
+                return false;
+            }
+            
+        
 
     }
 
     private SizeOfBoard chooseSizeOfBoard(){
         System.out.println("Choose the size of board\n[0]-3x3\n[1]-5x5");
         Scanner input = new Scanner(System.in);
-       int i = input.nextInt();
+        int i;
+        try{
+            i = input.nextInt();
+            isSizeProper(i);
+        }catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+       
        switch (i) {
             case 0:
                 return SizeOfBoard.three;
@@ -81,9 +107,15 @@ public class Game {
         }
     }
 
-    public void isInputProper(int input, int size) throws IllegalArgumentException {
-        if (input < 0 || input > size) {
-            throw new IllegalArgumentException("Input must be greater than 0 and smaller than "+size+1);
+    public void isLocationProper(int input, int size) throws IllegalArgumentException {
+        if (input < 0 || input > size-1) {
+            throw new IllegalArgumentException("Input must be greater or equal 0 and smaller than "+size);
+        }
+    }
+    
+    public void isSizeProper(int input) throws IllegalArgumentException {
+        if (input < 0 || input > 1) {
+            throw new IllegalArgumentException("Input must be 0 or 1!");
         }
     }
 
@@ -91,7 +123,7 @@ public class Game {
        int location;
        try {
            location = input.nextInt();
-           isInputProper(location, size);
+           isLocationProper(location, size);
        }catch (IllegalArgumentException e) {
            throw new IllegalArgumentException(e.getMessage());
        }
@@ -106,15 +138,27 @@ public class Game {
             sign = Sign.circle;
         return sign;
     }
+    
+    private void printFloor(){
+        System.out.print(" -----+");
+        for(int i =1; i<board.rows-1;i++){
+            System.out.print("----+");
+        }
+        System.out.println("-----");
+    }
+    
 
 
     private  void printBoard() {
         for (int j = 0; j < board.rows; j++) {
+            printFloor();
             for (int i = 0; i < board.columns; i++) {
-                System.out.print(" | "+board.borad[j][i].printSymbol()+" | ");
+                System.out.print(" | "+board.borad[j][i].printSymbol()+" ");
             }
-            System.out.println();
+            System.out.println(" |");
         }
+       printFloor();
+        System.out.println();
 
     }
 
@@ -130,7 +174,9 @@ public class Game {
         catch(IOException e){
             System.out.print("The file hasn't been creates\nError: "+e);
         }
-
+        
+    
+    
     }
 
 }
